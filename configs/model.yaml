@@ -1,0 +1,34 @@
+# Model architecture presets
+
+# Mini (fast CPU training)
+mini:
+  vocab_size: 1300
+  d_model: 64
+  n_layers: 4
+  n_heads: 4
+  d_ff: 256
+  max_seq_len: 256
+  dropout: 0.1
+  device: cpu
+
+# Base (default)
+base:
+  vocab_size: 1300
+  d_model: 384
+  n_layers: 8
+  n_heads: 8
+  d_ff: 1536
+  max_seq_len: 512
+  dropout: 0.1
+  device: cpu
+
+# Large (needs more RAM)
+large:
+  vocab_size: 5000
+  d_model: 768
+  n_layers: 12
+  n_heads: 12
+  d_ff: 3072
+  max_seq_len: 1024
+  dropout: 0.1
+  device: cpu

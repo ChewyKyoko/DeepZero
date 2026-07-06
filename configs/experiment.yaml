@@ -1,0 +1,6 @@
+name: self-improvement-test
+n_rounds: 3
+tasks_per_round: 5
+temperature: 0.8
+top_k: 40
+description: "Baseline self-improvement on coding tasks"

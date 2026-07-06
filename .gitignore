@@ -14,6 +14,14 @@ runs/
 data/
 tokenizer.json
 
+# Experiment outputs
+outputs/
+checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
 # IDE
 .vscode/
 .idea/

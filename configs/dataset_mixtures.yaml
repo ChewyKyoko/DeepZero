@@ -1,0 +1,72 @@
+# Dataset mixture configurations for DeepZero R0.3
+
+# Python Only — just Tiny Codes, all Python
+python_only:
+  name: python_only
+  components:
+    - name: tiny_codes
+      weight: 1.0
+      kwargs:
+        language: python
+
+# Mixed Coding — diverse Python datasets
+mixed_coding:
+  name: mixed_coding
+  components:
+    - name: tiny_codes
+      weight: 0.7
+      kwargs:
+        language: python
+    - name: mbpp
+      weight: 0.2
+    - name: humaneval
+      weight: 0.1
+
+# Replay Heavy — mostly self-generated data
+replay_heavy:
+  name: replay_heavy
+  components:
+    - name: tiny_codes
+      weight: 0.5
+      kwargs:
+        language: python
+    - name: replay
+      weight: 0.5
+      kwargs:
+        replay_path: replay_buffer.jsonl
+
+# Tiny + Stack — large-scale pretraining
+tiny_stack:
+  name: tiny_stack
+  components:
+    - name: tiny_codes
+      weight: 0.3
+      kwargs:
+        language: python
+    - name: the_stack
+      weight: 0.7
+      kwargs:
+        max_samples: 50000
+        language: python
+
+# Full Mix — all available sources
+full_mix:
+  name: full_mix
+  components:
+    - name: tiny_codes
+      weight: 0.5
+      kwargs:
+        language: python
+    - name: humaneval
+      weight: 0.1
+    - name: mbpp
+      weight: 0.1
+    - name: the_stack
+      weight: 0.2
+      kwargs:
+        max_samples: 30000
+        language: python
+    - name: replay
+      weight: 0.1
+      kwargs:
+        replay_path: replay_buffer.jsonl

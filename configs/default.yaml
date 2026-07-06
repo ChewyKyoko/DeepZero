@@ -1,0 +1,32 @@
+model:
+  vocab_size: 1300
+  d_model: 384
+  n_layers: 8
+  n_heads: 8
+  d_ff: 1536
+  max_seq_len: 512
+  dropout: 0.1
+  device: cpu
+
+training:
+  lr: 3.0e-4
+  weight_decay: 0.1
+  warmup_iters: 100
+  max_iters: 5000
+  batch_size: 8
+  log_interval: 10
+  eval_interval: 100
+  grad_clip: 1.0
+
+data:
+  path: data/sample_data.txt
+  seq_len: 512
+  val_split: 0.1
+
+tokenizer:
+  path: data/bpe_tokenizer.json
+  vocab_size: 1300
+
+checkpoint:
+  dir: checkpoints
+  save_best: true

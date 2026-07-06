@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "deepzero"
+version = "0.2.0"
+description = "Research platform for studying how small language models become capable coding assistants"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "ChewyKyoko"}]
+keywords = ["deep-learning", "transformer", "language-model", "research"]
+
+dependencies = [
+    "torch>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pandas",
+    "pyarrow",
+    "requests",
+    "pyyaml",
+]
+test = [
+    "pytest",
+]
+
+[project.scripts]
+deepzero-run = "scripts.run:main"
+deepzero-train = "scripts.train:main"
+deepzero-generate = "scripts.generate:main"
+deepzero-repl = "scripts.repl:main"
+
+[tool.setuptools.packages.find]
+include = ["deepzero*"]
