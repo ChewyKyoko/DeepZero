@@ -17,6 +17,7 @@ tokenizer.json
 # Experiment outputs
 outputs/
 checkpoints/
+results/
 
 # OS
 .DS_Store
