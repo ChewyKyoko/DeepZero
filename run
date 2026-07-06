@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+source "$(dirname "$0")/.venv/bin/activate"
+export LD_LIBRARY_PATH="/nix/store/hngmi01i8wgi25a0byrxcn4ysz5j79mw-gcc-15.2.0-lib/lib:$LD_LIBRARY_PATH"
+exec python3 "$@"
