@@ -89,7 +89,7 @@ python scripts/sweep.py configs/training/sweep.yaml
 | d_ff | 1536 |
 | Max seq | 512 |
 | Vocab | configurable (128–5000) |
-| Optimizer | AdamW / Muon / Sophia / Lion (configurable) |
+| Optimizer | Sophia (default), AdamW / Muon / Lion |
 | Schedule | Cosine + linear warmup |
 | Norm | RMSNorm (instead of LayerNorm) |
 | FF | SwiGLU (instead of ReLU) |
@@ -145,7 +145,7 @@ Configs support a `base:` key for inheritance:
 # sweep.yaml
 base: configs/training/full.yaml
 training:
-  optimizer: adamw
+  optimizer: sophia
   lr: 3e-4
 search:
   training.lr: [1e-4, 3e-4, 1e-3]
@@ -162,7 +162,9 @@ Ranked by final loss (15 steps, 19.4M param model, CPU):
 | 3 | Lion | 4.7626 | **760** | **4.6** | **333** |
 | 4 | Muon | 5.5519 | 723 | 5.5 | 349 |
 
-**Sophia wins** on convergence — Hessian diagonal guidance delivers lower loss at comparable speed. Lion is fastest but converges ~10% worse. AdamW is reliable but 55% slower.
+**Sophia is our pick** going forward — best convergence, good throughput, lowest RAM. May re-test in future phases to validate at scale or with tuned hyperparameters.
+
+Lion is fastest but converges ~10% worse. AdamW is reliable but 55% slower. Muon needs LR tuning.
 
 See [docs/optimizers.md](docs/optimizers.md) for full comparison.
 

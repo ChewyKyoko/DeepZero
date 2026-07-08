@@ -4,7 +4,7 @@ experiment:
   enabled: false
 
 search:
-  training.optimizer: [adamw, muon, sophia, lion]
+  training.optimizer: [sophia, adamw, muon, lion]
   training.lr: [3e-4, 1e-4]
   training.batch_size: [4]
 
