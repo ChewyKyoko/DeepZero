@@ -7,7 +7,8 @@ from deepzero.training.optimizer import OPTIMIZER_REGISTRY
 
 
 def main():
-    config_path = sys.argv[1] if len(sys.argv) > 1 else "configs/training/full.yaml"
+    # Use tiny config by default for fast iteration; pass a config path to override
+    config_path = sys.argv[1] if len(sys.argv) > 1 else "configs/training/tiny.yaml"
     steps = int(sys.argv[2]) if len(sys.argv) > 2 else 30
     optimizers = sys.argv[3:] if len(sys.argv) > 3 else list(OPTIMIZER_REGISTRY)
 

@@ -8,8 +8,7 @@ from typing import Optional
 
 import torch
 from torch.utils.data import DataLoader
-import yaml
-
+from deepzero.config.loader import load_config
 from deepzero.models.transformer import GPT, ModelConfig
 from deepzero.tokenizers.base import create_tokenizer
 from deepzero.datasets.base import create_dataset
@@ -41,8 +40,7 @@ def run_optimizer_benchmark(config_path: str = "configs/training/full.yaml",
     if optimizers is None:
         optimizers = list(OPTIMIZER_REGISTRY)
 
-    with open(config_path) as f:
-        base_cfg = yaml.safe_load(f)
+    base_cfg = load_config(config_path)
 
     set_seed(base_cfg.get("seed", 42))
     device = base_cfg.get("device", "cpu")
@@ -64,7 +62,8 @@ def run_optimizer_benchmark(config_path: str = "configs/training/full.yaml",
     train_texts = texts[:n_train]
     train_ds = PackedDataset(tokenizer, train_texts, seq_len)
     batch_size = base_cfg["training"]["batch_size"]
-    train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
+    train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True,
+                              num_workers=4, persistent_workers=True)
 
     ms = base_cfg["model"]
     model_cfg = ModelConfig(
@@ -88,8 +87,9 @@ def run_optimizer_benchmark(config_path: str = "configs/training/full.yaml",
         model = GPT(model_cfg).to(device)
         kw = OPTIMIZER_DEFAULTS.get(opt_name, {"lr": 3e-4})
 
-        # Fresh data iterator each run
-        loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
+        # Fresh data iterator each run — parallel workers for CPU throughput
+        loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True,
+                           num_workers=4, persistent_workers=True)
 
         tracker = MetricsTracker("/tmp/_opt_bench")
         tracker.set_max_steps(steps)
@@ -113,6 +113,7 @@ def run_optimizer_benchmark(config_path: str = "configs/training/full.yaml",
             gradient_accumulation=base_cfg["training"].get("gradient_accumulation", 8),
             compile_model=False,
             metrics_tracker=tracker,
+            num_workers=4,
         )
 
         t0 = _time.time()

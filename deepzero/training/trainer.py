@@ -50,7 +50,8 @@ class Trainer:
                  metrics_tracker: Optional["MetricsTracker"] = None,
                  early_stop_patience: Optional[int] = None,
                  tokenizer_name: str = "",
-                 eval_after_training: bool = False):
+                 eval_after_training: bool = False,
+                 num_workers: int = 0):
         self.device = device
         self.max_iters = max_iters
         self.log_interval = log_interval
@@ -67,6 +68,13 @@ class Trainer:
 
         self.train_loader = train_loader
         self.val_loader = val_loader
+        # ponytail: global num_workers — per-loader tuning if throughput matters
+        if num_workers > 0:
+            self.train_loader = DataLoader(
+                train_loader.dataset, batch_size=train_loader.batch_size,
+                shuffle=True, num_workers=num_workers, persistent_workers=True,
+                collate_fn=getattr(train_loader.dataset, "collate", None),
+            )
         self.model = model
         self.optimizer_kwargs = optimizer_kwargs or {}
         self.optimizer = self._build_optimizer(lr, weight_decay)
