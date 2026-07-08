@@ -57,7 +57,7 @@ class GPT(nn.Module):
         return logits, loss
 
     @torch.no_grad()
-    def generate(self, tokenizer, prompt: str, max_len: int = 256,
+    def generate(self, tokenizer, prompt: str = "", max_len: int = 256,
                  temperature: float = 0.8, top_k: int = 40) -> str:
         self.eval()
         ids = tokenizer.encode(prompt)
@@ -73,7 +73,7 @@ class GPT(nn.Module):
             probs = F.softmax(logits, dim=-1)
             next_id = torch.multinomial(probs, num_samples=1)
             input_ids = torch.cat([input_ids, next_id], dim=1)
-            if next_id.item() == tokenizer.EOS:
+            if next_id.item() == tokenizer.eos_token_id:
                 break
         return tokenizer.decode(input_ids[0].tolist())
 

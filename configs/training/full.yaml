@@ -1,0 +1,35 @@
+experiment:
+  enabled: true
+  base_dir: runs
+  save_plots: true
+  generate_report: true
+  time_to_targets: [4.0, 3.5, 3.0, 2.5, 2.0]
+dataset: tiny_textbooks
+tokenizer:
+  name: character
+  vocab_size: 5000
+training:
+  optimizer: adamw
+  lr: 3.0e-4
+  weight_decay: 0.1
+  warmup_iters: 50
+  max_iters: 100
+  batch_size: 4
+  gradient_accumulation: 8
+  log_interval: 10
+  eval_interval: 100
+  grad_clip: 1.0
+  compile_model: false
+  checkpoint_time_minutes: 5.0
+  early_stop_patience: false
+model:
+  d_model: 384
+  n_layers: 8
+  n_heads: 8
+  d_ff: 1536
+  max_seq_len: 512
+  dropout: 0.1
+checkpoint:
+  dir: checkpoints
+seed: 42
+device: cpu

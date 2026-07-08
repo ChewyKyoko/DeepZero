@@ -2,9 +2,7 @@ import hashlib
 import json
 import os
 import random
-import re
 from typing import Optional
-from collections import Counter
 
 
 LANGUAGES = {
@@ -60,42 +58,51 @@ def _infer_language(entry: dict) -> str:
     return LANGS_BY_EXT.get(ext, "unknown")
 
 
-def _download_parquet(cache_dir: str, hf_repo: str = "nampdn-ai/tiny-codes") -> str:
-    jsonl_path = os.path.join(cache_dir, "tiny-codes.jsonl")
+def _download_parquet(cache_dir: str, hf_repo: str = "nampdn-ai/tiny-codes",
+                      jsonl_name: str = "tiny-codes.jsonl",
+                      parquet_files: Optional[list[str]] = None) -> str:
+    jsonl_path = os.path.join(cache_dir, jsonl_name)
     if os.path.exists(jsonl_path):
         return jsonl_path
     os.makedirs(cache_dir, exist_ok=True)
+
+    if parquet_files is None:
+        parquet_files = [
+            "part_1_200000.parquet", "part_2_400000.parquet",
+            "part_3_600000.parquet", "part_4_800000.parquet",
+            "part_5_1000000.parquet", "part_6_1200000.parquet",
+            "part_7_1400000.parquet", "part_8_1600000.parquet",
+            "part_9_1632520.parquet",
+        ]
+
+    import urllib.request
     base_url = f"https://huggingface.co/datasets/{hf_repo}/resolve/main"
-    files = ["train-00000-of-00001-3a94d4fe3e9c3220.parquet"]
-    try:
-        import requests
-        for fname in files:
-            url = f"{base_url}/{fname}"
-            dest = os.path.join(cache_dir, fname)
-            if os.path.exists(dest):
+    all_dfs = []
+    for fname in parquet_files:
+        dest = os.path.join(cache_dir, fname)
+        if not os.path.exists(dest):
+            try:
+                urllib.request.urlretrieve(f"{base_url}/{fname}", dest)
+            except Exception:
                 continue
-            print(f"Downloading {url}...")
-            r = requests.get(url, stream=True, timeout=300)
-            r.raise_for_status()
-            with open(dest, "wb") as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    f.write(chunk)
         try:
             import pandas as pd
-            parquet_path = os.path.join(cache_dir, files[0])
-            df = pd.read_parquet(parquet_path)
-            with open(jsonl_path, "w") as f:
-                for _, row in df.iterrows():
-                    text = row.get("text", "")
-                    f.write(json.dumps({"text": text}) + "\n")
-            print(f"Saved {len(df)} samples to {jsonl_path}")
-            return jsonl_path
-        except ImportError as e:
-            print(f"pandas/pyarrow not available: {e}")
-            print(f"Parquet files at {cache_dir}")
-            return cache_dir
-    except ImportError:
-        raise ImportError("requests not available. Install with: pip install requests pandas pyarrow")
+            all_dfs.append(pd.read_parquet(dest))
+        except ImportError:
+            raise ImportError("pandas/pyarrow required. pip install pandas pyarrow")
+
+    if all_dfs:
+        import pandas as pd
+        df = pd.concat(all_dfs, ignore_index=True)
+        with open(jsonl_path, "w") as f:
+            for _, row in df.iterrows():
+                text = row.get("text", row.get("content", row.get("code", "")))
+                lang = row.get("language", row.get("lang", ""))
+                entry = {"text": text}
+                if lang:
+                    entry["language"] = lang
+                f.write(json.dumps(entry) + "\n")
+    return jsonl_path
 
 
 def _load_raw_jsonl(jsonl_path: str) -> list[dict]:
@@ -121,7 +128,8 @@ def _deduplicate(samples: list[dict]) -> list[dict]:
 
 
 def _filter_samples(samples: list[dict], min_length: int = MIN_CODE_LENGTH,
-                    max_length: int = MAX_CODE_LENGTH, language: str = "python") -> list[dict]:
+                    max_length: int = MAX_CODE_LENGTH, language: str = "python",
+                    skip_compile_check: bool = False) -> list[dict]:
     filtered = []
     for s in samples:
         text = s.get("text", "")
@@ -129,10 +137,11 @@ def _filter_samples(samples: list[dict], min_length: int = MIN_CODE_LENGTH,
             continue
         text = _normalize_whitespace(text)
         s["text"] = text
-        s["language"] = _infer_language(s)
-        if language and s["language"] != language:
+        inferred = _infer_language(s)
+        s["language"] = inferred
+        if language and inferred != "unknown" and inferred != language:
             continue
-        if language == "python" and not _is_valid_python(text):
+        if language == "python" and not skip_compile_check and not _is_valid_python(text):
             continue
         filtered.append(s)
     return filtered
@@ -162,27 +171,22 @@ def _save_split(split: list[dict], path: str):
 def build_dataset(cache_dir: str = "data/tiny-codes", force_rebuild: bool = False,
                   language: str = "python", min_length: int = MIN_CODE_LENGTH,
                   max_length: int = MAX_CODE_LENGTH, train_ratio: float = 0.80,
-                  val_ratio: float = 0.10, test_ratio: float = 0.10) -> dict[str, str]:
+                  val_ratio: float = 0.10, test_ratio: float = 0.10,
+                  skip_compile_check: bool = False) -> dict:
     meta_path = os.path.join(cache_dir, "dataset_meta.json")
     if not force_rebuild and os.path.exists(meta_path):
         with open(meta_path) as f:
             meta = json.load(f)
         if meta.get("language") == language and meta.get("status") == "built":
-            print(f"Dataset already built at {cache_dir}")
             return meta
 
     jsonl_path = _download_parquet(cache_dir)
     samples = _load_raw_jsonl(jsonl_path)
-    print(f"Loaded {len(samples)} raw samples")
-
     samples = _deduplicate(samples)
-    print(f"After dedup: {len(samples)} samples")
-
-    samples = _filter_samples(samples, min_length=min_length, max_length=max_length, language=language)
-    print(f"After filtering ({language}): {len(samples)} samples")
+    samples = _filter_samples(samples, min_length=min_length, max_length=max_length,
+                              language=language, skip_compile_check=skip_compile_check)
 
     train, val, test = _train_val_test_split(samples, train_ratio, val_ratio)
-    print(f"Splits: train={len(train)}, val={len(val)}, test={len(test)}")
 
     splits = {"train": train, "validation": val, "test": test}
     split_paths = {}

@@ -1,12 +1,12 @@
 import json
 import os
 import random
-from typing import Optional
 
 from deepzero.datasets.base import BaseDataset
 
 
-MBPP_URL = "https://huggingface.co/datasets/mbpp/resolve/main/mbpp.jsonl"
+MBPP_REPO = "google-research-datasets/mbpp"
+MBPP_PARQUET = "sanitized/train-00000-of-00001.parquet"
 
 
 class MBPPDataset(BaseDataset):
@@ -19,29 +19,53 @@ class MBPPDataset(BaseDataset):
         if os.path.exists(jsonl_path):
             return
         os.makedirs(self.cache_dir, exist_ok=True)
+
+        import urllib.request
+        parquet_name = MBPP_PARQUET.replace("/", "_")
+        parquet_path = os.path.join(self.cache_dir, parquet_name)
+        if not os.path.exists(parquet_path):
+            try:
+                urllib.request.urlretrieve(
+                    f"https://huggingface.co/datasets/{MBPP_REPO}/resolve/main/{MBPP_PARQUET}",
+                    parquet_path)
+            except Exception:
+                return
+
         try:
-            import requests
-            resp = requests.get(MBPP_URL, stream=True, timeout=120)
-            resp.raise_for_status()
-            with open(jsonl_path, "wb") as f:
-                for chunk in resp.iter_content(8192):
-                    f.write(chunk)
+            import pandas as pd
+            df = pd.read_parquet(parquet_path)
+            with open(jsonl_path, "w") as f:
+                for _, row in df.iterrows():
+                    text = row.get("text", "")
+                    if not text:
+                        prompt = row.get("prompt", "")
+                        code = row.get("code", "")
+                        test_list = row.get("test_list", [])
+                        test_setup = row.get("test_setup", "")
+                        parts = [prompt, code]
+                        if test_setup:
+                            parts.append(test_setup)
+                        parts.extend(str(t) for t in (test_list or []))
+                        text = "\n".join(parts)
+                    f.write(json.dumps({"text": text}) + "\n")
         except ImportError:
-            raise ImportError("requests required. pip install requests")
+            raise ImportError("pandas/pyarrow required. pip install pandas pyarrow")
 
     def preprocess(self) -> None:
         jsonl_path = os.path.join(self.cache_dir, "mbpp.jsonl")
         if not os.path.exists(jsonl_path):
             self.download()
+        if not os.path.exists(jsonl_path):
+            self._texts = []
+            return
         texts = []
         with open(jsonl_path) as f:
             for line in f:
                 entry = json.loads(line)
-                prompt = entry.get("prompt", "")
-                code = entry.get("code", "")
-                test_list = entry.get("test_list", [])
-                combined = f"{prompt}\n{code}\n" + "\n".join(test_list)
-                texts.append(combined)
+                text = entry.get("text", "")
+                if not text:
+                    continue
+                texts.append(text)
         self._texts = texts
 
     def deduplicate(self) -> None:

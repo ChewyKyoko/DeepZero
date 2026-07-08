@@ -1,7 +1,6 @@
 import json
 import os
 import random
-from typing import Optional
 
 from deepzero.datasets.base import BaseDataset
 from deepzero.datasets.pipeline import _deduplicate, _filter_samples
@@ -25,32 +24,31 @@ class TheStackDataset(BaseDataset):
         if os.path.exists(jsonl_path):
             return
         os.makedirs(self.cache_dir, exist_ok=True)
-        try:
-            import requests
-            parquet_path = os.path.join(self.cache_dir, "train-00000-of-00001.parquet")
-            if not os.path.exists(parquet_path):
-                resp = requests.get(STACK_SAMPLE_URL, stream=True, timeout=300)
-                resp.raise_for_status()
-                with open(parquet_path, "wb") as f:
-                    for chunk in resp.iter_content(8192):
-                        f.write(chunk)
+        import urllib.request
+        parquet_path = os.path.join(self.cache_dir, "train-00000-of-00001.parquet")
+        if not os.path.exists(parquet_path):
             try:
-                import pandas as pd
-                df = pd.read_parquet(parquet_path)
-                df = df.head(self.max_samples)
-                with open(jsonl_path, "w") as f:
-                    for _, row in df.iterrows():
-                        content = row.get("content", "")
-                        f.write(json.dumps({"text": content}) + "\n")
-            except ImportError:
-                raise ImportError("pandas/pyarrow required. pip install pandas pyarrow")
+                urllib.request.urlretrieve(STACK_SAMPLE_URL, parquet_path)
+            except Exception:
+                return
+        try:
+            import pandas as pd
+            df = pd.read_parquet(parquet_path)
+            df = df.head(self.max_samples)
+            with open(jsonl_path, "w") as f:
+                for _, row in df.iterrows():
+                    content = row.get("content", "")
+                    f.write(json.dumps({"text": content}) + "\n")
         except ImportError:
-            raise ImportError("requests required. pip install requests")
+            raise ImportError("pandas/pyarrow required. pip install pandas pyarrow")
 
     def preprocess(self) -> None:
         jsonl_path = os.path.join(self.cache_dir, "stack.jsonl")
         if not os.path.exists(jsonl_path):
             self.download()
+        if not os.path.exists(jsonl_path):
+            self._texts = []
+            return
         samples = []
         with open(jsonl_path) as f:
             for line in f:

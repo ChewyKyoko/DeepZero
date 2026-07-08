@@ -1,0 +1,50 @@
+[
+  {
+    "optimizer": "sophia",
+    "steps": 15,
+    "final_loss": 4.1592698097229,
+    "best_loss": 4.1592698097229,
+    "avg_tokens_per_second": 728.3154708194847,
+    "avg_samples_per_second": 0,
+    "peak_ram_gb": 4.88,
+    "avg_ram_gb": 4.4,
+    "training_time_sec": 345.5,
+    "time_to_target": {}
+  },
+  {
+    "optimizer": "adamw",
+    "steps": 15,
+    "final_loss": 4.312209129333496,
+    "best_loss": 4.312209129333496,
+    "avg_tokens_per_second": 490.59389080506804,
+    "avg_samples_per_second": 0,
+    "peak_ram_gb": 5.55,
+    "avg_ram_gb": 5.0,
+    "training_time_sec": 510.4,
+    "time_to_target": {}
+  },
+  {
+    "optimizer": "lion",
+    "steps": 15,
+    "final_loss": 4.762615203857422,
+    "best_loss": 4.762615203857422,
+    "avg_tokens_per_second": 759.7901576967912,
+    "avg_samples_per_second": 0,
+    "peak_ram_gb": 4.58,
+    "avg_ram_gb": 4.1,
+    "training_time_sec": 332.6,
+    "time_to_target": {}
+  },
+  {
+    "optimizer": "muon",
+    "steps": 15,
+    "final_loss": 5.551910400390625,
+    "best_loss": 5.551910400390625,
+    "avg_tokens_per_second": 722.7779516560463,
+    "avg_samples_per_second": 0,
+    "peak_ram_gb": 5.5,
+    "avg_ram_gb": 5.0,
+    "training_time_sec": 349.4,
+    "time_to_target": {}
+  }
+]

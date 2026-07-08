@@ -1,0 +1,11 @@
+base: configs/training/full.yaml
+
+experiment:
+  enabled: false
+
+search:
+  training.optimizer: [adamw, muon, sophia, lion]
+  training.lr: [3e-4, 1e-4]
+  training.batch_size: [4]
+
+data_limit: 5000

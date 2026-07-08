@@ -59,6 +59,9 @@ def create_dataset(name: str, **kwargs) -> BaseDataset:
     elif name == "the_stack":
         from deepzero.datasets.the_stack import TheStackDataset
         return TheStackDataset(**kwargs)
+    elif name == "tiny_textbooks":
+        from deepzero.datasets.tiny_textbooks import TinyTextbooksDataset
+        return TinyTextbooksDataset(**kwargs)
     elif name == "local":
         from deepzero.datasets.local import LocalDataset
         return LocalDataset(**kwargs)
@@ -71,6 +74,7 @@ def create_dataset(name: str, **kwargs) -> BaseDataset:
 
 DATASET_REGISTRY = {
     "tiny_codes": "deepzero.datasets.tiny_codes_v2:TinyCodesDataset",
+    "tiny_textbooks": "deepzero.datasets.tiny_textbooks:TinyTextbooksDataset",
     "humaneval": "deepzero.datasets.humaneval:HumanEvalDataset",
     "mbpp": "deepzero.datasets.mbpp:MBPPDataset",
     "the_stack": "deepzero.datasets.the_stack:TheStackDataset",

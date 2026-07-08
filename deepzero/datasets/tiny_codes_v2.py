@@ -2,7 +2,6 @@ import hashlib
 import json
 import os
 import random
-from typing import Optional
 
 from deepzero.datasets.base import BaseDataset
 from deepzero.datasets.pipeline import (
@@ -27,10 +26,15 @@ class TinyCodesDataset(BaseDataset):
         raw_path = os.path.join(self.cache_dir, "tiny-codes.jsonl")
         if not os.path.exists(raw_path):
             self.download()
+        if not os.path.exists(raw_path):
+            self._texts = []
+            self._meta = {"n_raw": 0, "language": self.language, "error": "download_failed"}
+            return
         samples = _load_raw_jsonl(raw_path)
         samples = _deduplicate(samples)
         samples = _filter_samples(samples, min_length=self.min_length,
-                                  max_length=self.max_length, language=self.language)
+                                  max_length=self.max_length, language=self.language,
+                                  skip_compile_check=True)
         self._texts = [s["text"] for s in samples]
         self._meta = {"n_raw": len(samples), "language": self.language}
 

@@ -1,12 +1,12 @@
 import json
 import os
 import random
-from typing import Optional
 
 from deepzero.datasets.base import BaseDataset
 
 
-HUMANEVAL_URL = "https://huggingface.co/datasets/openai_humaneval/resolve/main/data/humaneval-py.jsonl.gz"
+HUMANEVAL_REPO = "openai/openai_humaneval"
+HUMANEVAL_PARQUET = "openai_humaneval/test-00000-of-00001.parquet"
 
 
 class HumanEvalDataset(BaseDataset):
@@ -19,34 +19,48 @@ class HumanEvalDataset(BaseDataset):
         if os.path.exists(jsonl_path):
             return
         os.makedirs(self.cache_dir, exist_ok=True)
+
+        import urllib.request
+        parquet_name = HUMANEVAL_PARQUET.split("/")[-1]
+        parquet_path = os.path.join(self.cache_dir, parquet_name)
+        if not os.path.exists(parquet_path):
+            try:
+                urllib.request.urlretrieve(
+                    f"https://huggingface.co/datasets/{HUMANEVAL_REPO}/resolve/main/{HUMANEVAL_PARQUET}",
+                    parquet_path)
+            except Exception:
+                return
+
         try:
-            import requests
-            import gzip
-            resp = requests.get(HUMANEVAL_URL, stream=True, timeout=120)
-            resp.raise_for_status()
-            out_path = os.path.join(self.cache_dir, "humaneval-py.jsonl.gz")
-            with open(out_path, "wb") as f:
-                for chunk in resp.iter_content(8192):
-                    f.write(chunk)
-            with gzip.open(out_path, "rt") as gz:
-                with open(jsonl_path, "w") as out:
-                    out.write(gz.read())
-            os.unlink(out_path)
+            import pandas as pd
+            df = pd.read_parquet(parquet_path)
+            with open(jsonl_path, "w") as f:
+                for _, row in df.iterrows():
+                    prompt = row.get("prompt", "")
+                    canonical = row.get("canonical_solution", "")
+                    test = row.get("test", "")
+                    f.write(json.dumps({"prompt": prompt, "canonical_solution": canonical, "test": test,
+                                        "text": f"{prompt}\n{canonical}\n{test}"}) + "\n")
         except ImportError:
-            raise ImportError("requests required. pip install requests")
+            raise ImportError("pandas/pyarrow required. pip install pandas pyarrow")
 
     def preprocess(self) -> None:
         jsonl_path = os.path.join(self.cache_dir, "humaneval-py.jsonl")
         if not os.path.exists(jsonl_path):
             self.download()
+        if not os.path.exists(jsonl_path):
+            self._texts = []
+            return
         texts = []
         with open(jsonl_path) as f:
             for line in f:
                 entry = json.loads(line)
-                prompt = entry.get("prompt", "")
-                canonical = entry.get("canonical_solution", "")
-                test = entry.get("test", "")
-                combined = f"{prompt}\n{canonical}\n{test}"
+                combined = entry.get("text", "")
+                if not combined:
+                    prompt = entry.get("prompt", "")
+                    canonical = entry.get("canonical_solution", "")
+                    test = entry.get("test", "")
+                    combined = f"{prompt}\n{canonical}\n{test}"
                 texts.append(combined)
         self._texts = texts
 
