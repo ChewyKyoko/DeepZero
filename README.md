@@ -170,8 +170,6 @@ Lion is fastest but converges worse and takes 4x longer to reach loss<3.0. AdamW
 
 See [docs/optimizers.md](docs/optimizers.md) for full comparison and [docs/roadmap.md](docs/roadmap.md) for release plan.
 
-See [docs/optimizers.md](docs/optimizers.md) for full comparison.
-
 ## Tokenizers
 
 | Tokenizer | Type | Train Time (10K texts) | Tok/text |
