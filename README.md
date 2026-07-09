@@ -153,18 +153,22 @@ search:
 
 ## Optimizer Benchmark Results
 
-Ranked by final loss (15 steps, 19.4M param model, CPU):
+Ranked by final loss (500 steps, 1.25M param model on `configs/training/tiny.yaml`, CPU):
 
-| Rank | Optimizer | Final Loss | Tok/s | RAM (GB) | Time (s) |
-|------|-----------|-----------|-------|----------|----------|
-| 1 | **Sophia** | **4.1593** | 728 | 4.9 | 345 |
-| 2 | AdamW | 4.3122 | 491 | 5.5 | 510 |
-| 3 | Lion | 4.7626 | **760** | **4.6** | **333** |
-| 4 | Muon | 5.5519 | 723 | 5.5 | 349 |
+| Rank | Optimizer | Final Loss | Best Loss | Tok/s | Time (s) | Time to loss<3.0 |
+|------|-----------|-----------|-----------|-------|----------|-----------------|
+| 1 | **Sophia** | **2.57** | **2.42** | 7275 | 1192 | step 116 |
+| 2 | AdamW | 2.64 | 2.50 | 5565 | 1496 | step 116 |
+| 3 | Lion | 3.16 | 2.99 | **8209** | **1006** | step 487 |
+| 4 | Muon | 3.50 | 3.24 | 5394 | 1538 | never |
 
-**Sophia is our pick** going forward — best convergence, good throughput, lowest RAM. May re-test in future phases to validate at scale or with tuned hyperparameters.
+Results confirmed at 15, 30, 200, and 500 steps. Sophia consistently wins on convergence while being faster than AdamW.
 
-Lion is fastest but converges ~10% worse. AdamW is reliable but 55% slower. Muon needs LR tuning.
+**Sophia is our pick** going forward — best convergence, competitive throughput, and reached every time-to-target milestone first. May re-test at larger scale with tuned hyperparameters.
+
+Lion is fastest but converges worse and takes 4x longer to reach loss<3.0. AdamW converges nearly as well as Sophia but is 25% slower. Muon needs significant LR tuning.
+
+See [docs/optimizers.md](docs/optimizers.md) for full comparison and [docs/roadmap.md](docs/roadmap.md) for release plan.
 
 See [docs/optimizers.md](docs/optimizers.md) for full comparison.
 

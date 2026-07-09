@@ -60,10 +60,16 @@ def run_optimizer_benchmark(config_path: str = "configs/training/full.yaml",
     n_train = int(n * 0.8)
     seq_len = base_cfg["model"].get("max_seq_len", 512)
     train_texts = texts[:n_train]
+    val_texts = texts[n_train:]
     train_ds = PackedDataset(tokenizer, train_texts, seq_len)
+    val_ds = PackedDataset(tokenizer, val_texts, seq_len) if val_texts else None
     batch_size = base_cfg["training"]["batch_size"]
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True,
                               num_workers=4, persistent_workers=True)
+    val_loader = None
+    if val_ds is not None:
+        val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False,
+                                num_workers=4, persistent_workers=True)
 
     ms = base_cfg["model"]
     model_cfg = ModelConfig(
@@ -101,11 +107,12 @@ def run_optimizer_benchmark(config_path: str = "configs/training/full.yaml",
         trainer = Trainer(
             model=model,
             train_loader=loader,
+            val_loader=val_loader,
             optimizer_name=opt_name,
             optimizer_kwargs=kw,
             max_iters=steps,
             log_interval=1,
-            eval_interval=max(10, steps),
+            eval_interval=min(50, steps),
             warmup_iters=max(5, steps // 10),
             grad_clip=1.0,
             checkpoint_dir=ckpt_dir,

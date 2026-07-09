@@ -45,9 +45,9 @@ def render_dashboard(
 
     ln(f"  Loss        {loss:<8.4f}  LR           {lr:.2e}")
     val_str = f"{val_loss:.4f}" if val_loss is not None else "─"
-    ln(f"  Valid Loss  {val_str:<8}  Grad Norm    {grad_norm:.2f}")
+    ln(f"  Val Loss    {val_str:<8}  Grad Norm    {grad_norm:.2f}")
     ppl_str = f"{perplexity:.1f}" if perplexity is not None else "─"
-    ln(f"  Perplexity  {ppl_str:<8}  Best Val     {best_val_loss:.4f}" if best_val_loss else f"  Perplexity  {ppl_str}")
+    ln(f"  PPL         {ppl_str:<8}  Best Val     {best_val_loss:.4f}" if best_val_loss else f"  PPL         {ppl_str}")
     ln()
     ln(f"  Optimizer   {opt_name:<12}  Tokenizer    {tok_name}")
     ln(f"  tok/s       {tok_speed:<8.0f}  samp/s       {samp_speed:.1f}")

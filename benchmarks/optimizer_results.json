@@ -1,50 +1,102 @@
 [
   {
     "optimizer": "sophia",
-    "steps": 30,
-    "final_loss": 5.435450553894043,
-    "best_loss": 5.379719257354736,
-    "avg_tokens_per_second": 8441.0441711539,
+    "steps": 500,
+    "final_loss": 2.56878399848938,
+    "best_loss": 2.4157307147979736,
+    "avg_tokens_per_second": 7274.942578016588,
     "avg_samples_per_second": 0,
     "peak_ram_gb": 4.6,
     "avg_ram_gb": 4.1,
-    "training_time_sec": 59.4,
-    "time_to_target": {}
+    "training_time_sec": 1191.8,
+    "time_to_target": {
+      "4.0": {
+        "step": 67,
+        "elapsed": 202.6
+      },
+      "3.5": {
+        "step": 82,
+        "elapsed": 247.3
+      },
+      "3.0": {
+        "step": 116,
+        "elapsed": 348.9
+      },
+      "2.5": {
+        "step": 242,
+        "elapsed": 682.8
+      }
+    }
   },
   {
     "optimizer": "adamw",
-    "steps": 30,
-    "final_loss": 5.520863056182861,
-    "best_loss": 5.467158317565918,
-    "avg_tokens_per_second": 8319.021738040425,
+    "steps": 500,
+    "final_loss": 2.6439311504364014,
+    "best_loss": 2.5000698566436768,
+    "avg_tokens_per_second": 5564.5135551450985,
     "avg_samples_per_second": 0,
     "peak_ram_gb": 4.6,
     "avg_ram_gb": 4.1,
-    "training_time_sec": 60.2,
-    "time_to_target": {}
+    "training_time_sec": 1495.9,
+    "time_to_target": {
+      "4.0": {
+        "step": 69,
+        "elapsed": 211.1
+      },
+      "3.5": {
+        "step": 82,
+        "elapsed": 250.1
+      },
+      "3.0": {
+        "step": 116,
+        "elapsed": 351.7
+      }
+    }
   },
   {
     "optimizer": "lion",
-    "steps": 30,
-    "final_loss": 5.978944301605225,
-    "best_loss": 5.922993183135986,
-    "avg_tokens_per_second": 8067.334369285605,
+    "steps": 500,
+    "final_loss": 3.1554746627807617,
+    "best_loss": 2.986889362335205,
+    "avg_tokens_per_second": 8209.377624437406,
     "avg_samples_per_second": 0,
     "peak_ram_gb": 4.6,
     "avg_ram_gb": 4.1,
-    "training_time_sec": 61.8,
-    "time_to_target": {}
+    "training_time_sec": 1006.4,
+    "time_to_target": {
+      "4.0": {
+        "step": 161,
+        "elapsed": 324.1
+      },
+      "3.5": {
+        "step": 234,
+        "elapsed": 470.9
+      },
+      "3.0": {
+        "step": 487,
+        "elapsed": 980.4
+      }
+    }
   },
   {
     "optimizer": "muon",
-    "steps": 30,
-    "final_loss": 6.1148905754089355,
-    "best_loss": 6.071381092071533,
-    "avg_tokens_per_second": 7802.924179331959,
+    "steps": 500,
+    "final_loss": 3.5002317428588867,
+    "best_loss": 3.2438039779663086,
+    "avg_tokens_per_second": 5393.964159409193,
     "avg_samples_per_second": 0,
     "peak_ram_gb": 4.6,
     "avg_ram_gb": 4.1,
-    "training_time_sec": 64.0,
-    "time_to_target": {}
+    "training_time_sec": 1538.0,
+    "time_to_target": {
+      "4.0": {
+        "step": 101,
+        "elapsed": 313.0
+      },
+      "3.5": {
+        "step": 151,
+        "elapsed": 466.3
+      }
+    }
   }
 ]
