@@ -45,7 +45,7 @@ class Trainer:
                  gradient_accumulation: int = 1,
                  checkpoint_time_minutes: float = 10.0,
                  callbacks: Optional[list[Callable]] = None,
-                 optimizer_name: str = "adamw",
+                 optimizer_name: str = "sophia",
                  optimizer_kwargs: Optional[dict] = None,
                  metrics_tracker: Optional["MetricsTracker"] = None,
                  early_stop_patience: Optional[int] = None,

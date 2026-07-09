@@ -11,45 +11,51 @@ timeline
          : Character tokenizer
          : tiny-textbooks dataset
          : PackedDataset chunking
-         : Training loop with gradient accumulation
+         : Training loop + gradient accumulation
          : LR warmup + cosine decay
 
     R0.2 : Optimizer benchmarks
          : AdamW / Muon / Sophia / Lion via registry
          : Opt-in weight decay param groups
          : Experiment tracking
-         : MetricsTracker (per-step + time-to-target)
-         : ExperimentManager (run dir, metadata, finalize)
+         : MetricsTracker + time-to-target
+         : ExperimentManager + run dirs
          : Rich terminal dashboard
          : 6 matplotlib plot types
-         : Auto-generated Markdown reports
-         : 5-mode checkpoint system
-         : RNG save/restore for resume
-         : Early stopping with patience
-         : Config inheritance (base: key)
+         : Auto-generated reports
+         : 5-mode checkpoint system + RNG resume
+         : Early stopping + config inheritance
 
-    R0.3 : Evaluation framework
+    R0.3 : Evaluation + Search
          : Perplexity + 5-category benchmarks
-         : Code completion, syntax, math, reasoning, trivia
-         : Hyperparameter search
-         : Grid sweep over search: config section
-         : Trial leaderboard CSV
-         : Dataset versioning (dataset.json)
+         : Hyperparameter grid search
+         : Dataset versioning
+         : Lock Sophia as default optimizer
+         : tiny.yaml for rapid research (<1h per experiment)
 
-    R0.4 : Model scaling
-         : Scale to 100M+ parameters
-         : Multi-GPU training (DDP / FSDP)
-         : Deployment
-         : ONNX export
-         : GGUF export
-         : Inference server (REST API)
+    R1 Tiny : Datasets, Tokenizers, Architectures
+            : Explore 6+ dataset sources + mixtures
+            : Compare BPE / Byte BPE / Unigram / Character
+            : Architecture variants (MOE, linear attention, etc.)
+            : All experiments on tiny.yaml with Sophia
+
+    R1 Full : Scale & Ship
+             : Scale to 100M+ parameters
+             : Multi-GPU training (DDP / FSDP)
+             : Verify Sophia holds at larger scale
+             : ONNX export
+             : GGUF export
+             : Inference server (REST API)
 ```
 
 ## Release Plan
 
-| Release | Focus | Key Deliverables |
-|---------|-------|------------------|
-| **R0.1** | Foundation | Transformer core, tokenizer, data pipeline, basic training |
-| **R0.2** | Experimentation | Optimizer comparison, metrics tracking, visualization, reports, checkpoints |
-| **R0.3** | Evaluation & Search | Model eval suite, hyperparameter grid search, dataset versioning |
-| **R0.4** | Scale & Ship | Large model training, multi-GPU, ONNX/GGUF export, inference serving |
+| Release | Focus | Model | Optimizer | Iteration Speed |
+|---------|-------|-------|-----------|-----------------|
+| **R0.x Tiny** | Lock infrastructure | 1.25M (tiny.yaml) | **Sophia** | ~1h per experiment |
+| **R1 Tiny** | Dataset/tokenizer/architecture research | 1.25M (tiny.yaml) | Sophia | ~1h per experiment |
+| **R1 Full** | Scale, deploy, verify | 100M+ | Sophia (verify at scale) | hours to days |
+
+## Optimizer Decision
+
+**Sophia is locked as the default** for all R0.x and R1 Tiny research. At R1 Full, we re-verify whether Sophia still wins at 100M+ parameters — optimizer performance can change with model scale.

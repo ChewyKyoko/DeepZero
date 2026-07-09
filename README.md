@@ -1,6 +1,6 @@
 # DeepZero
 
-[![Stage](https://img.shields.io/badge/Stage-R0.3--evaluation--sweep-blueviolet)]()
+[![Stage](https://img.shields.io/badge/Stage-R1--tiny--research-blueviolet)]()
 [![Python](https://img.shields.io/badge/Python-3.13+-blue)]()
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.12+-orange)]()
 
@@ -14,10 +14,9 @@ Runs on a single CPU core (Intel Core Ultra 7 155U, 16GB RAM). No GPU required.
 
 | Phase | What | Status |
 |-------|------|--------|
-| **R0.1** | Foundation — GPT-style transformer, character tokenizer, data pipeline, basic training | ✅ |
-| **R0.2** | Experimentation — optimizer benchmarks (AdamW/Muon/Sophia/Lion), experiment tracking, metrics, live dashboard, plots, reports, 5-mode checkpoints, early stopping, config inheritance | ✅ |
-| **R0.3** | Evaluation & Search — perplexity + 5-category benchmarks, hyperparameter grid search, dataset versioning | ✅ |
-| **R0.4** | Scale & Ship — model scaling to 100M+, multi-GPU, ONNX/GGUF export, inference serving | ⏳ |
+| **R0.x Tiny** | Lock infrastructure — optimizer, tracking, benchmarks, sweeps, dashboard | ✅ |
+| **R1 Tiny** | Dataset, tokenizer, architecture research on `tiny.yaml` with Sophia | 🏃 |
+| **R1 Full** | Scale to 100M+, multi-GPU, verify Sophia at scale, ONNX/GGUF export, inference serving | ⏳ |
 
 ---
 
@@ -164,7 +163,7 @@ Ranked by final loss (500 steps, 1.25M param model on `configs/training/tiny.yam
 
 Results confirmed at 15, 30, 200, and 500 steps. Sophia consistently wins on convergence while being faster than AdamW.
 
-**Sophia is our pick** going forward — best convergence, competitive throughput, and reached every time-to-target milestone first. May re-test at larger scale with tuned hyperparameters.
+**Sophia is locked as the default** for all R0.x and R1 Tiny research. May re-verify at R1 Full — optimizer performance can change with model scale.
 
 Lion is fastest but converges worse and takes 4x longer to reach loss<3.0. AdamW converges nearly as well as Sophia but is 25% slower. Muon needs significant LR tuning.
 

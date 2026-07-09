@@ -160,7 +160,7 @@ OPTIMIZER_REGISTRY = {
 }
 
 
-def build_optimizer(model: torch.nn.Module, name: str = "adamw",
+def build_optimizer(model: torch.nn.Module, name: str = "sophia",
                     lr: float = 3e-4, weight_decay: float = 0.1,
                     **extra) -> torch.optim.Optimizer:
     decay = [p for p in model.parameters() if p.dim() >= 2]
